@@ -158,6 +158,40 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
                 "data": data
             });
 
+            //Textfield
+            map.addLayer({
+                'id': 'title',
+                'type': 'symbol',
+                'source': 'csvData',
+                'minzoom': 16,
+
+                'layout': {
+
+                    'text-field': [
+                        'format',
+                        ['concat', ['get', 'Cat']], {
+                            'font-scale': 1,
+                            'text-color': '#fff'
+                        },
+                        '\n', {},
+                        ['concat', ['get', 'cat']], {
+                            'font-scale': 0.7,
+                            'text-color': '#fff'
+                        }
+                    ],
+                    'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+                    'text-radial-offset': 1,
+                    'text-justify': 'auto',
+                    'text-font': ['Open Sans Semibold']
+                },
+                'paint': {
+                    'text-color': '#fff',
+                    'text-halo-color': '#333',
+                    'text-halo-width': 1,
+                    'text-halo-blur': 1
+                },
+            });
+
             //Add the the layer to the map
             map.addLayer({
               'id': 'csvData',
