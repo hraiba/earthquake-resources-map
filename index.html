@@ -11,7 +11,6 @@
   <script src='https://npmcdn.com/csv2geojson@latest/csv2geojson.js'></script>
   <!-- <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script> -->
   <style>
-
     body {
       margin: 0;
       padding: 0;
@@ -89,13 +88,73 @@
     .mapboxgl-popup-anchor-top>.mapboxgl-popup-tip {
       border-bottom-color: rgb(61, 59, 59);
     }
+
+    .map-overlay {
+      position: absolute;
+      width: 25%;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      background-color: #efefef;
+      max-height: 100%;
+      overflow: hidden;
+    }
+
+    .map-overlay fieldset {
+      display: none;
+      background: #ddd;
+      border: none;
+      padding: 10px;
+      margin: 0;
+    }
+
+    .map-overlay input {
+      display: block;
+      border: none;
+      width: 100%;
+      border-radius: 3px;
+      padding: 10px;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    .map-overlay .listing {
+      overflow: auto;
+      max-height: 100%;
+    }
+
+    .map-overlay .listing>* {
+      display: block;
+      padding: 5px 10px;
+      margin: 0;
+    }
+
+    .map-overlay .listing a {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      color: #404;
+      text-decoration: none;
+    }
+
+    .map-overlay .listing a:last-child {
+      border: none;
+    }
+
+    .map-overlay .listing a:hover {
+      background: #f0f0f0;
+    }
   </style>
 </head>
 
 <body>
 
   <div id='map'></div>
-
+  <div class="map-overlay">
+    <fieldset>
+      <input id="feature-filter" type="text" placeholder="İsme göre filtrele">
+    </fieldset>
+    <div id="feature-listing" class="listing"></div>
+  </div>
   <div class="loader loader--style1" title="0" id="loader">
     <svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px" y="0px" width="40px" height="40px" viewBox="0 0 40 40" enable-background="new 0 0 40 40"
@@ -111,6 +170,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
     </svg>
   </div>
 
+
   <script>
     var transformRequest = (url, resourceType) => {
       var isMapboxRequest =
@@ -123,6 +183,10 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
       };
     };
 
+    const filterEl = document.getElementById('feature-filter');
+    const listingEl = document.getElementById('feature-listing');
+    let csvDataSet = [];
+    
     mapboxgl.accessToken =
       'pk.eyJ1IjoibWFwYm94LWNvbW11bml0eSIsImEiOiJja2tkN21jcjAwMG51MnBxdHAxemdueGpzIn0.e0IzLkytGq4pcGGieP8KNA'; //Mapbox token
     var map = new mapboxgl.Map({
@@ -133,6 +197,61 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
       hash: true,
       transformRequest: transformRequest
     });
+
+    function getUniqueFeatures(features, comparatorProperty) {
+      const uniqueIds = new Set();
+      const uniqueFeatures = [];
+      for (const feature of features) {
+        const id = feature.properties[comparatorProperty];
+        if (!uniqueIds.has(id)) {
+          uniqueIds.add(id);
+          uniqueFeatures.push(feature);
+        }
+      }
+      return uniqueFeatures;
+    }
+
+    function normalize(string) {
+      return string.trim().toLowerCase();
+    }
+
+    function renderListings(features) {
+      const empty = document.createElement('p');
+      // Clear any existing listings
+      listingEl.innerHTML = '';
+      if (features.length) {
+        for (const feature of features) {
+          const itemLink = document.createElement('a');
+          const label = `${feature.properties.Name}`;
+          // itemLink.href = feature.properties.wikipedia;
+          itemLink.target = '_blank';
+          itemLink.textContent = label;
+          itemLink.addEventListener('mouseover', () => {
+            // Highlight corresponding feature on the map
+            popup
+              .setLngLat(feature.geometry.coordinates)
+              .setText(label)
+              .addTo(map);
+          });
+          listingEl.appendChild(itemLink);
+        }
+
+        // Show the filter input
+        filterEl.parentNode.style.display = 'block';
+      } else if (features.length === 0 && filterEl.value !== '') {
+        empty.textContent = 'Sonuç bulunamadı.';
+        listingEl.appendChild(empty);
+      } else {
+        empty.textContent = 'Sonuçları görmek için haritayı kaydırın';
+        listingEl.appendChild(empty);
+
+        // Hide the filter input
+        filterEl.parentNode.style.display = 'none';
+
+        // remove features filter
+        map.setFilter('csvData', ['has', 'Name']);
+      }
+    }
 
     $(document).ready(function () {
       $.ajax({
@@ -146,23 +265,22 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
       });
 
       function makeGeoJSON(csvData) {
-        csv2geojson.csv2geojson(csvData, {   
+        csv2geojson.csv2geojson(csvData, {
           latfield: 'Latitude',
           lonfield: 'Longitude',
           delimiter: ','
         }, function (err, data) {
           map.on('load', function () {
-
-            map.addSource('csvData', {
-                "type": "geojson",
-                "data": data
+            map.addSource('csvDataSet', {
+              "type": "geojson",
+              "data": data
             });
 
             //Add the the layer to the map
             map.addLayer({
               'id': 'csvData',
               'type': 'circle',
-              'source': 'csvData',
+              'source': 'csvDataSet',
               'paint': {
                 'circle-radius': 10,
                 'circle-color': "black"
@@ -171,36 +289,36 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
 
             //Hover
             map.addLayer({
-                'id': 'placehover',
-                'type': 'circle',
-                'source': 'csvData',
-                'paint': {
-                    // 'circle-radius': {'base': 2,'stops': [[10, 10], [15, 50], [22, 100]]},
-                    'circle-radius': 10,
-                    'circle-opacity': 0.8,
-                    'circle-pitch-alignment': 'map',
-                    'circle-pitch-scale': 'map',
-                    'circle-color': '#FF1A55'
-                },
-                "filter": ["==", "Name", ""]
+              'id': 'placehover',
+              'type': 'circle',
+              'source': 'csvDataSet',
+              'paint': {
+                // 'circle-radius': {'base': 2,'stops': [[10, 10], [15, 50], [22, 100]]},
+                'circle-radius': 10,
+                'circle-opacity': 0.8,
+                'circle-pitch-alignment': 'map',
+                'circle-pitch-scale': 'map',
+                'circle-color': '#FF1A55'
+              },
+              "filter": ["==", "Name", ""]
             });
 
             //Highlight
             map.addLayer({
-                'id': 'placehighlight',
-                'type': 'circle',
-                'source': 'csvData',
-                'paint': {
-                    // 'circle-radius': {'base': 2,'stops': [[10, 10], [15, 50], [22, 100]]},
-                    'circle-radius': 22,
-                    'circle-opacity': 0.5,
-                    'circle-pitch-alignment': 'map',
-                    'circle-pitch-scale': 'map',
-                    'circle-stroke-color': '#000',
-                    'circle-stroke-width': 0.5,
-                    'circle-color': '#000'
-                },
-                "filter": ["==", "Name", ""]
+              'id': 'placehighlight',
+              'type': 'circle',
+              'source': 'csvDataSet',
+              'paint': {
+                // 'circle-radius': {'base': 2,'stops': [[10, 10], [15, 50], [22, 100]]},
+                'circle-radius': 22,
+                'circle-opacity': 0.5,
+                'circle-pitch-alignment': 'map',
+                'circle-pitch-scale': 'map',
+                'circle-stroke-color': '#000',
+                'circle-stroke-width': 0.5,
+                'circle-color': '#000'
+              },
+              "filter": ["==", "Name", ""]
             });
 
             // When a click event occurs on a feature in the csvData layer, open a popup at the
@@ -245,7 +363,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
             //Hide loading bar once tiles from geojson are loaded
             map.on('data', function (e) {
               if (e.dataType === 'source' && e.sourceId === 'csvData') {
-                  document.getElementById("loader").style.visibility = "hidden";
+                document.getElementById("loader").style.visibility = "hidden";
               }
             })
 
@@ -264,11 +382,80 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
             );
 
             map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+            map.on('movestart', () => {
+              // reset features filter as the map starts moving
+              map.setFilter('csvData', ['has', 'Name']);
+            });
 
+            map.on('moveend', () => {
+              const features = map.queryRenderedFeatures({ layers: ['csvData'] });
+
+              if (features) {
+                const uniqueFeatures = getUniqueFeatures(features, 'Name');
+                // Populate features for the listing overlay.
+                renderListings(uniqueFeatures);
+
+                // Clear the input container
+                filterEl.value = '';
+
+                // Store the current features in sn `airports` variable to
+                // later use for filtering on `keyup`.
+                csvDataSet = uniqueFeatures;
+              }
+            });
+
+            map.on('mousemove', 'csvData', (e) => {
+              // Change the cursor style as a UI indicator.
+              map.getCanvas().style.cursor = 'pointer';
+
+              // Populate the popup and set its coordinates based on the feature.
+              const feature = e.features[0];
+              // popup
+              //   .setLngLat(feature.geometry.coordinates)
+              //   .setText(
+              //     `${feature.properties.name} (${feature.properties.abbrev})`
+              //   )
+              //   .addTo(map);
+            });
+
+            map.on('mouseleave', 'csvData', () => {
+              map.getCanvas().style.cursor = '';
+              //popup.remove();
+            });
+
+            filterEl.addEventListener('keyup', (e) => {
+              const value = normalize(e.target.value);
+
+              // Filter visible features that match the input value.
+              const filtered = [];
+              for (const feature of csvDataSet) {
+                const name = normalize(feature.properties.Name);
+                if (name.includes(value)) {
+                  filtered.push(feature);
+                }
+              }
+
+              // Populate the sidebar with filtered results
+              renderListings(filtered);
+
+              // Set the filter to populate features into the layer.
+              if (filtered.length) {
+                map.setFilter('csvData', [
+                  'match',
+                  ['get', 'Name'],
+                  filtered.map((feature) => {
+                    return feature.properties.Name;
+                  }),
+                  true,
+                  false
+                ]);
+              }
+            });
           });
 
         });
       };
+      renderListings([]);
     });
   </script>
 
