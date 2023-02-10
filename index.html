@@ -265,7 +265,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
       });
 
       function makeGeoJSON(csvData) {
-        csv2geojson.csv2geojson(csvData, {
+        csv2geojson.csv2geojson(csvData, {   
           latfield: 'Latitude',
           lonfield: 'Longitude',
           delimiter: ','
@@ -276,14 +276,71 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
               "data": data
             });
 
+            //Textfield
+            map.addLayer({
+                'id': 'title',
+                'type': 'symbol',
+                'source': 'csvData',
+                'minzoom': 16,
+
+                'layout': {
+
+                    'text-field': [
+                        'format',
+                        ['concat', ['get', 'Cat']], {
+                            'font-scale': 1,
+                            'text-color': '#fff'
+                        },
+                        '\n', {},
+                        ['concat', ['get', 'cat']], {
+                            'font-scale': 0.7,
+                            'text-color': '#fff'
+                        }
+                    ],
+                    'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+                    'text-radial-offset': 1,
+                    'text-justify': 'auto',
+                    'text-font': ['Open Sans Semibold']
+                },
+                'paint': {
+                    'text-color': '#fff',
+                    'text-halo-color': '#333',
+                    'text-halo-width': 1,
+                    'text-halo-blur': 1
+                },
+            });
+
             //Add the the layer to the map
             map.addLayer({
               'id': 'csvData',
               'type': 'circle',
               'source': 'csvDataSet',
               'paint': {
-                'circle-radius': 10,
-                'circle-color': "black"
+                'circle-color': [
+                    'match',
+                    ['get', 'Cat'],
+
+                    'Güvenli Alan', '#3498db',
+                    'Veteriner', '#8e44ad ',
+                    'Otobüs', '#283747',
+                    'Konaklama & Beslenme', '#e67e22',
+                    /* other */
+                    ' #fee090'
+                ],
+                'circle-radius': [
+                    'match',
+                    ['get', 'cat'],
+
+                    'Güvenli Alan', 8,
+                    'Veteriner', 8,
+                    'Otobüs', 8,
+                    'Konaklama & Beslenme', 8,
+                    /* other */
+                    8
+                ],
+                'circle-stroke-color': 'black',
+                'circle-stroke-width': 0.5,
+                'circle-opacity': 1
               }
             });
 
@@ -294,7 +351,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
               'source': 'csvDataSet',
               'paint': {
                 // 'circle-radius': {'base': 2,'stops': [[10, 10], [15, 50], [22, 100]]},
-                'circle-radius': 10,
+                'circle-radius': 8,
                 'circle-opacity': 0.8,
                 'circle-pitch-alignment': 'map',
                 'circle-pitch-scale': 'map',
