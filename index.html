@@ -228,7 +228,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
           itemLink.textContent = label;
           itemLink.addEventListener('mouseover', () => {
             // Highlight corresponding feature on the map
-            popup
+            new mapboxgl.Popup
               .setLngLat(feature.geometry.coordinates)
               .setText(label)
               .addTo(map);
@@ -249,7 +249,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
         filterEl.parentNode.style.display = 'none';
 
         // remove features filter
-        map.setFilter('csvData', ['has', 'Name']);
+        map.setFilter('csvDataSet', ['has', 'Name']);
       }
     }
 
@@ -280,7 +280,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
             map.addLayer({
                 'id': 'title',
                 'type': 'symbol',
-                'source': 'csvData',
+                'source': 'csvDataSet',
                 'minzoom': 16,
 
                 'layout': {
