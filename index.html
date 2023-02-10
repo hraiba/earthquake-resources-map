@@ -9,11 +9,21 @@
   <script src="https://api.mapbox.com/mapbox-gl-js/v1.13.2/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v1.13.2/mapbox-gl.css" rel="stylesheet" />
   <script src='https://npmcdn.com/csv2geojson@latest/csv2geojson.js'></script>
-  <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+  <!-- <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script> -->
   <style>
+
     body {
       margin: 0;
       padding: 0;
+    }
+
+    a {
+      color: #FF1A55;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: black;
     }
 
     #map {
@@ -61,6 +71,13 @@
       font-weight: 400;
     }
 
+    .mapboxgl-popup-content small {
+      margin: 0;
+      display: block;
+      padding: 10px 3px 10px 10px;
+      font-weight: 400;
+    }
+
     .mapboxgl-container {
       cursor: pointer;
     }
@@ -78,26 +95,41 @@
 <body>
 
   <div id='map'></div>
-  <script>
 
+  <div class="loader loader--style1" title="0" id="loader">
+    <svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px" y="0px" width="40px" height="40px" viewBox="0 0 40 40" enable-background="new 0 0 40 40"
+      xml:space="preserve">
+      <path opacity="0.2" fill="#000" d="M20.201,5.169c-8.254,0-14.946,6.692-14.946,14.946c0,8.255,6.692,14.946,14.946,14.946
+s14.946-6.691,14.946-14.946C35.146,11.861,28.455,5.169,20.201,5.169z M20.201,31.749c-6.425,0-11.634-5.208-11.634-11.634
+c0-6.425,5.209-11.634,11.634-11.634c6.425,0,11.633,5.209,11.633,11.634C31.834,26.541,26.626,31.749,20.201,31.749z" />
+      <path fill="#000" d="M26.013,10.047l1.654-2.866c-2.198-1.272-4.743-2.012-7.466-2.012h0v3.312h0
+C22.32,8.481,24.301,9.057,26.013,10.047z">
+        <animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 20 20" to="360 20 20"
+          dur="0.5s" repeatCount="indefinite" />
+      </path>
+    </svg>
+  </div>
+
+  <script>
     var transformRequest = (url, resourceType) => {
       var isMapboxRequest =
         url.slice(8, 22) === "api.mapbox.com" ||
         url.slice(10, 26) === "tiles.mapbox.com";
       return {
-        url: isMapboxRequest
-          ? url.replace("?", "?pluginName=sheetMapper&")
-          : url
+        url: isMapboxRequest ?
+          url.replace("?", "?pluginName=sheetMapper&") :
+          url
       };
     };
-    //YOUR TURN: add your Mapbox token
 
-    mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94LWNvbW11bml0eSIsImEiOiJja2tkN21jcjAwMG51MnBxdHAxemdueGpzIn0.e0IzLkytGq4pcGGieP8KNA'; //Mapbox token
+    mapboxgl.accessToken =
+      'pk.eyJ1IjoibWFwYm94LWNvbW11bml0eSIsImEiOiJja2tkN21jcjAwMG51MnBxdHAxemdueGpzIn0.e0IzLkytGq4pcGGieP8KNA'; //Mapbox token
     var map = new mapboxgl.Map({
       container: 'map', // container id
       style: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json', // YOUR TURN: choose a style: https://docs.mapbox.com/api/maps/#styles
       center: [36.712, 37.002], // starting position [lng, lat]
-      zoom: 10,// starting zoom
+      zoom: 10, // starting zoom
       hash: true,
       transformRequest: transformRequest
     });
@@ -108,7 +140,9 @@
         //YOUR TURN: Replace with csv export link
         url: 'https://docs.google.com/spreadsheets/d/1fJVVy5GVSoF1BR9VBmijiMmSHaVrroqQN2rif0FmDCI/gviz/tq?tqx=out:csv&sheet=Sheet1',
         dataType: "text",
-        success: function (csvData) { makeGeoJSON(csvData); }
+        success: function (csvData) {
+          makeGeoJSON(csvData);
+        }
       });
 
       function makeGeoJSON(csvData) {
@@ -119,24 +153,62 @@
         }, function (err, data) {
           map.on('load', function () {
 
+            map.addSource('csvData', {
+                "type": "geojson",
+                "data": data
+            });
+
             //Add the the layer to the map
             map.addLayer({
               'id': 'csvData',
               'type': 'circle',
-              'source': {
-                'type': 'geojson',
-                'data': data
-              },
+              'source': 'csvData',
               'paint': {
                 'circle-radius': 10,
                 'circle-color': "black"
               }
             });
 
+            //Hover
+            map.addLayer({
+                'id': 'placehover',
+                'type': 'circle',
+                'source': 'csvData',
+                'paint': {
+                    // 'circle-radius': {'base': 2,'stops': [[10, 10], [15, 50], [22, 100]]},
+                    'circle-radius': 10,
+                    'circle-opacity': 0.8,
+                    'circle-pitch-alignment': 'map',
+                    'circle-pitch-scale': 'map',
+                    'circle-color': '#FF1A55'
+                },
+                "filter": ["==", "Name", ""]
+            });
+
+            //Highlight
+            map.addLayer({
+                'id': 'placehighlight',
+                'type': 'circle',
+                'source': 'csvData',
+                'paint': {
+                    // 'circle-radius': {'base': 2,'stops': [[10, 10], [15, 50], [22, 100]]},
+                    'circle-radius': 22,
+                    'circle-opacity': 0.5,
+                    'circle-pitch-alignment': 'map',
+                    'circle-pitch-scale': 'map',
+                    'circle-stroke-color': '#000',
+                    'circle-stroke-width': 0.5,
+                    'circle-color': '#000'
+                },
+                "filter": ["==", "Name", ""]
+            });
 
             // When a click event occurs on a feature in the csvData layer, open a popup at the
             // location of the feature, with description HTML from its properties.
             map.on('click', 'csvData', function (e) {
+
+              map.setFilter("placehighlight", ["==", "Name", e.features[0].properties.Name]);
+
               var coordinates = e.features[0].geometry.coordinates.slice();
 
               // Ensure that if the map is zoomed out such that multiple
@@ -146,12 +218,13 @@
                 coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
               }
 
-              var description = `<h3>` + e.features[0].properties.Name + `</h3><br />`
-                + `<h4><span><a href="https://maps.google.com/maps/dir/?api=1&destination=${coordinates[1]},${coordinates[0]}" target="_blank">Yol tarifi</a></span></h4>`
-                + `<h4><b>Address:</b>` + e.features[0].properties.Address + `</h4>`
-                + `<h4><b>Description:</b>` + e.features[0].properties.Description + `</h4>`;
-
-              //add Popup to map
+              var description = `<h3>` + e.features[0].properties.Cat + `</h3><br />` +
+                `<h4>` + e.features[0].properties.Name + `</h4><br />` +
+                `<h4><a href="https://maps.google.com/maps/dir/?api=1&destination=${coordinates[1]},${coordinates[0]}" target="_blank">Yol tarifi</a></h4>` +
+                `<h4><b>İletişim: </b>` + e.features[0].properties.Contact + `</h4>` +
+                `<h4><b>Adres: </b>` + e.features[0].properties.Address + `</h4>` +
+                `<h4><b>Açıklama: </b>` + e.features[0].properties.Description + `</h4>` +
+                `<small><b>Kaynak: </b>` + e.features[0].properties.Source + `</small>`;
 
               new mapboxgl.Popup()
                 .setLngLat(coordinates)
@@ -159,18 +232,27 @@
                 .addTo(map);
             });
 
-            // Change the cursor to a pointer when the mouse is over the places layer.
-            map.on('mouseenter', 'csvData', function () {
+            map.on('mouseenter', 'csvData', function (e) {
               map.getCanvas().style.cursor = 'pointer';
+              map.setFilter("placehover", ["==", "Name", e.features[0].properties.Name]);
             });
 
-            // Change it back to a pointer when it leaves.
-            map.on('mouseleave', 'places', function () {
+            map.on('mouseleave', 'csvData', function (e) {
               map.getCanvas().style.cursor = '';
+              map.setFilter("placehover", ["==", "Name", ""]);
             });
 
-            var bbox = turf.bbox(data);
-            map.fitBounds(bbox, { padding: 50 });
+            //Hide loading bar once tiles from geojson are loaded
+            map.on('data', function (e) {
+              if (e.dataType === 'source' && e.sourceId === 'csvData') {
+                  document.getElementById("loader").style.visibility = "hidden";
+              }
+            })
+
+            // var bbox = turf.bbox(data);
+            // map.fitBounds(bbox, {
+            //   padding: 50
+            // });
 
             map.addControl(
               new mapboxgl.GeolocateControl({
@@ -181,7 +263,6 @@
               }), 'bottom-right'
             );
 
-            // Add a navigation control to the bottom right.
             map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
 
           });
@@ -189,7 +270,6 @@
         });
       };
     });
-
   </script>
 
 </body>
