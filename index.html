@@ -249,7 +249,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
         filterEl.parentNode.style.display = 'none';
 
         // remove features filter
-        map.setFilter('csvDataSet', ['has', 'Name']);
+        map.setFilter('csvData', ['has', 'Name']);
       }
     }
 
@@ -281,7 +281,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
                 'id': 'title',
                 'type': 'symbol',
                 'source': 'csvDataSet',
-                'minzoom': 16,
+                'minzoom': 12,
 
                 'layout': {
 
@@ -508,11 +508,13 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
                 ]);
               }
             });
+          
+            
+            renderListings([]);
           });
 
         });
       };
-      renderListings([]);
     });
   </script>
 
