@@ -91,8 +91,8 @@
       };
     };
     //YOUR TURN: add your Mapbox token
-    
-    mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94LWNvbW11bml0eSIsImEiOiJja2tkN21jcjAwMG51MnBxdHAxemdueGpzIn0.e0IzLkytGq4pcGGieP8KNA'; //Mapbox token 
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94LWNvbW11bml0eSIsImEiOiJja2tkN21jcjAwMG51MnBxdHAxemdueGpzIn0.e0IzLkytGq4pcGGieP8KNA'; //Mapbox token
     var map = new mapboxgl.Map({
       container: 'map', // container id
       style: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json', // YOUR TURN: choose a style: https://docs.mapbox.com/api/maps/#styles
@@ -128,8 +128,8 @@
                 'data': data
               },
               'paint': {
-                'circle-radius': 5,
-                'circle-color': "purple"
+                'circle-radius': 10,
+                'circle-color': "black"
               }
             });
 
@@ -138,7 +138,7 @@
             // location of the feature, with description HTML from its properties.
             map.on('click', 'csvData', function (e) {
               var coordinates = e.features[0].geometry.coordinates.slice();
-              
+
               // Ensure that if the map is zoomed out such that multiple
               // copies of the feature are visible, the popup appears
               // over the copy being pointed to.
@@ -146,9 +146,9 @@
                 coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
               }
 
-              var description = `<h3>` + e.features[0].properties.Name + `</h3><br />` 
+              var description = `<h3>` + e.features[0].properties.Name + `</h3><br />`
                                 + `<h4><span><a href="https://maps.google.com/maps/dir/?api=1&destination=${coordinates[1]},${coordinates[0]}" target="_blank">Yol tarifi</a></span></h4>`
-                                + `<h4><b>Address:</b>` + e.features[0].properties.Address + `</h4>` 
+                                + `<h4><b>Address:</b>` + e.features[0].properties.Address + `</h4>`
                                 + `<h4><b>Description:</b>` + e.features[0].properties.description + `</h4>`;
 
               //add Popup to map
