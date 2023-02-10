@@ -11,9 +11,19 @@
   <script src='https://npmcdn.com/csv2geojson@latest/csv2geojson.js'></script>
   <!-- <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script> -->
   <style>
+
     body {
       margin: 0;
       padding: 0;
+    }
+
+    a {
+      color: #FF1A55;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: black;
     }
 
     #map {
@@ -55,6 +65,13 @@
     }
 
     .mapboxgl-popup-content h4 {
+      margin: 0;
+      display: block;
+      padding: 10px 3px 10px 10px;
+      font-weight: 400;
+    }
+
+    .mapboxgl-popup-content small {
       margin: 0;
       display: block;
       padding: 10px 3px 10px 10px;
@@ -105,7 +122,6 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
           url
       };
     };
-    //YOUR TURN: add your Mapbox token
 
     mapboxgl.accessToken =
       'pk.eyJ1IjoibWFwYm94LWNvbW11bml0eSIsImEiOiJja2tkN21jcjAwMG51MnBxdHAxemdueGpzIn0.e0IzLkytGq4pcGGieP8KNA'; //Mapbox token
@@ -137,23 +153,61 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
         }, function (err, data) {
           map.on('load', function () {
 
+            map.addSource('csvData', {
+                "type": "geojson",
+                "data": data
+            });
+
             //Add the the layer to the map
             map.addLayer({
               'id': 'csvData',
               'type': 'circle',
-              'source': {
-                'type': 'geojson',
-                'data': data
-              },
+              'source': 'csvData',
               'paint': {
                 'circle-radius': 10,
                 'circle-color': "black"
               }
             });
 
+            //Hover
+            map.addLayer({
+                'id': 'placehover',
+                'type': 'circle',
+                'source': 'csvData',
+                'paint': {
+                    // 'circle-radius': {'base': 2,'stops': [[10, 10], [15, 50], [22, 100]]},
+                    'circle-radius': 10,
+                    'circle-opacity': 0.8,
+                    'circle-pitch-alignment': 'map',
+                    'circle-pitch-scale': 'map',
+                    'circle-color': '#FF1A55'
+                },
+                "filter": ["==", "Name", ""]
+            });
+
+            //Highlight
+            map.addLayer({
+                'id': 'placehighlight',
+                'type': 'circle',
+                'source': 'csvData',
+                'paint': {
+                    // 'circle-radius': {'base': 2,'stops': [[10, 10], [15, 50], [22, 100]]},
+                    'circle-radius': 22,
+                    'circle-opacity': 0.5,
+                    'circle-pitch-alignment': 'map',
+                    'circle-pitch-scale': 'map',
+                    'circle-stroke-color': '#000',
+                    'circle-stroke-width': 0.5,
+                    'circle-color': '#000'
+                },
+                "filter": ["==", "Name", ""]
+            });
+
             // When a click event occurs on a feature in the csvData layer, open a popup at the
             // location of the feature, with description HTML from its properties.
             map.on('click', 'csvData', function (e) {
+
+              map.setFilter("placehighlight", ["==", "Name", e.features[0].properties.Name]);
 
               var coordinates = e.features[0].geometry.coordinates.slice();
 
@@ -164,12 +218,13 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
                 coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
               }
 
-              var description = `<h3>` + e.features[0].properties.Name + `</h3><br />` +
-                `<h4><span><a href="https://maps.google.com/maps/dir/?api=1&destination=${coordinates[1]},${coordinates[0]}" target="_blank">Yol tarifi</a></span></h4>` +
-                `<h4><b>Adres:</b>` + e.features[0].properties.Address + `</h4>` +
-                `<h4><b>Açıklama:</b>` + e.features[0].properties.Description + `</h4>`;
-
-              //add Popup to map
+              var description = `<h3>` + e.features[0].properties.Cat + `</h3><br />` +
+                `<h4>` + e.features[0].properties.Name + `</h4><br />` +
+                `<h4><a href="https://maps.google.com/maps/dir/?api=1&destination=${coordinates[1]},${coordinates[0]}" target="_blank">Yol tarifi</a></h4>` +
+                `<h4><b>İletişim: </b>` + e.features[0].properties.Contact + `</h4>` +
+                `<h4><b>Adres: </b>` + e.features[0].properties.Address + `</h4>` +
+                `<h4><b>Açıklama: </b>` + e.features[0].properties.Description + `</h4>` +
+                `<small><b>Kaynak: </b>` + e.features[0].properties.Source + `</small>`;
 
               new mapboxgl.Popup()
                 .setLngLat(coordinates)
@@ -177,14 +232,14 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
                 .addTo(map);
             });
 
-            // Change the cursor to a pointer when the mouse is over the places layer.
-            map.on('mouseenter', 'csvData', function () {
+            map.on('mouseenter', 'csvData', function (e) {
               map.getCanvas().style.cursor = 'pointer';
+              map.setFilter("placehover", ["==", "Name", e.features[0].properties.Name]);
             });
 
-            // Change it back to a pointer when it leaves.
-            map.on('mouseleave', 'csvData', function () {
+            map.on('mouseleave', 'csvData', function (e) {
               map.getCanvas().style.cursor = '';
+              map.setFilter("placehover", ["==", "Name", ""]);
             });
 
             //Hide loading bar once tiles from geojson are loaded
@@ -208,7 +263,6 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
               }), 'bottom-right'
             );
 
-            // Add a navigation control to the bottom right.
             map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
 
           });
