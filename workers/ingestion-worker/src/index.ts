@@ -21,8 +21,8 @@ export interface Env {
 
 export default {
 	async scheduled(controller, env, ctx) {
-    const url = new URL("https://docs.google.com/spreadsheets/d/1fJVVy5GVSoF1BR9VBmijiMmSHaVrroqQN2rif0FmDCI/gviz/tq?tqx=out:csv&sheet=Sheet1");
-    const key = '/spread-sheet/csv'
+    const url = new URL("https://docs.google.com/spreadsheets/d/1MvtWjyYNLyroGbfC8ZCMxjdZtfPLNSpcE8tv6TiAwIU/gviz/tq?tqx=out:csv&sheet=Sheet1");
+    const key = '/spread-sheet/csv-syria'
     var response = await fetch(new Request(url))
     ctx.waitUntil(await env.SPREADSHEET_BUCKET.put(key, await response.text()));
 	},
