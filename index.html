@@ -223,7 +223,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
       const empty = document.createElement('p');
       // Clear any existing listings
       listingEl.innerHTML = '';
-      if (features.length && map.getZoom() > 12) {
+      if (features.length && features.length < 30) {
         for (const feature of features) {
           const itemLink = document.createElement('a');
           const label = `${feature.properties.Name}`;
@@ -255,7 +255,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
         empty.textContent = 'Sonuç bulunamadı.';
         listingEl.appendChild(empty);
       } else {
-        if (map.getZoom() <= 12) {
+        if ( features.length >= 30) {
           empty.textContent = 'Sonuçları görmek için haritayı yakınlaştırın';
         } else {
           empty.textContent = 'Sonuçları görmek için haritayı kaydırın';
@@ -267,7 +267,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
 
         // remove features filter
         map.setFilter('csvData', ['has', 'Name']);
-      
+
       }
     }
 
