@@ -1,4 +1,4 @@
-name = "projects"
+name = "earthquake-resources-map-ingestion-worker"
 main = "src/index.ts"
 compatibility_date = "2023-02-10"
 [[r2_buckets]]
