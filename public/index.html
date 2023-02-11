@@ -3,7 +3,7 @@
 
 <head>
   <meta charset='utf-8' />
-  <title>İhtiyaç Haritası</title>
+  <title>خريطة الاحتياجات</title>
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/v1.13.2/mapbox-gl.js"></script>
@@ -151,7 +151,7 @@
   <div style="display: flex;">
     <div class="map-overlay">
       <fieldset>
-        <input id="feature-filter" type="text" placeholder="İsme göre filtrele">
+        <input id="feature-filter" type="text" placeholder="تصفية حسب الاسم">
       </fieldset>
       <div id="feature-listing" class="listing"></div>
     </div>
@@ -252,13 +252,13 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
         // Show the filter input
         filterEl.parentNode.style.display = 'block';
       } else if (features.length === 0 && filterEl.value !== '') {
-        empty.textContent = 'Sonuç bulunamadı.';
+        empty.textContent = 'لا يوجد نتائج';
         listingEl.appendChild(empty);
       } else {
         if ( features.length >= 30) {
-          empty.textContent = 'Sonuçları görmek için haritayı yakınlaştırın';
+          empty.textContent = 'تكبير الخريطة لرؤية النتائج';
         } else {
-          empty.textContent = 'Sonuçları görmek için haritayı kaydırın';
+          empty.textContent = 'قم بالتمرير على الخريطة لرؤية النتائج';
         }
         listingEl.appendChild(empty);
 
