@@ -1,0 +1,9 @@
+name = "projects"
+main = "src/index.ts"
+compatibility_date = "2023-02-10"
+[[r2_buckets]]
+binding = 'SPREADSHEET_BUCKET' # <~ valid JavaScript variable name
+bucket_name = 'spreadsheet-bucket'
+preview_bucket_name = 'spreadsheet-bucket'
+[triggers]
+crons = ["*/1 * * * *"]
