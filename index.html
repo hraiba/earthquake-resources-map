@@ -26,7 +26,7 @@
     }
 
     #map {
-      position: absolute;
+      /*position: absolute;*/
       top: 0;
       bottom: 0;
       width: 100%;
@@ -90,14 +90,14 @@
     }
 
     .map-overlay {
-      position: absolute;
+      /* position: absolute; */
       width: 25%;
       top: 0;
       bottom: 0;
       left: 0;
       font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
       background-color: #efefef;
-      max-height: 100%;
+      height: 100vh;
       overflow: hidden;
     }
 
@@ -148,14 +148,16 @@
 
 <body>
 
-  <div id='map'></div>
-  <div class="map-overlay">
-    <fieldset>
-      <input id="feature-filter" type="text" placeholder="İsme göre filtrele">
-    </fieldset>
-    <div id="feature-listing" class="listing"></div>
+  <div style="display: flex;">
+    <div class="map-overlay">
+      <fieldset>
+        <input id="feature-filter" type="text" placeholder="İsme göre filtrele">
+      </fieldset>
+      <div id="feature-listing" class="listing"></div>
+    </div>
+    <div id='map'></div>
   </div>
-  <div class="loader loader--style1" title="0" id="loader">
+  <div title="0" id="loader">
     <svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px" y="0px" width="40px" height="40px" viewBox="0 0 40 40" enable-background="new 0 0 40 40"
       xml:space="preserve">
@@ -235,6 +237,15 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
               .setText(label)
               .addTo(map);
           });
+          itemLink.addEventListener('click', (e) => {
+            map.flyTo({
+                    center: feature.geometry.coordinates,
+                    zoom: 16,
+                    speed: 2,
+                    curve: 1,
+                    essential: true
+                });
+          })
           listingEl.appendChild(itemLink);
         }
 
