@@ -1,6 +1,6 @@
 # earthquake-resources-map
-  Deprem sonrası depremdezelerin ihtiyaç duydukları yerleri bulması için harita
+  خريطة معلومات عن الاحتياجات في المناطق المنكوبة بعد الزلزال
 
-  Website: https://ihtiyac-haritasi.vatozsoftware.com/
+  Website: https://earthquake-syria.vatozsoftware.com/
 
-  Data Source: https://docs.google.com/spreadsheets/d/1fJVVy5GVSoF1BR9VBmijiMmSHaVrroqQN2rif0FmDCI/edit#gid=0
+  Data Source: https://docs.google.com/spreadsheets/d/1MvtWjyYNLyroGbfC8ZCMxjdZtfPLNSpcE8tv6TiAwIU/edit
