@@ -3,7 +3,7 @@
 
 <head>
   <meta charset='utf-8' />
-  <title>İhtiyaç Haritası</title>
+  <title>خريطة الاحتياجات</title>
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/v1.13.2/mapbox-gl.js"></script>
@@ -151,7 +151,7 @@
   <div style="display: flex;">
     <div class="map-overlay">
       <fieldset>
-        <input id="feature-filter" type="text" placeholder="İsme göre filtrele">
+        <input id="feature-filter" type="text" placeholder="تصفية حسب الاسم">
       </fieldset>
       <div id="feature-listing" class="listing"></div>
     </div>
@@ -256,9 +256,9 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
         listingEl.appendChild(empty);
       } else {
         if ( features.length >= 30) {
-          empty.textContent = 'Sonuçları görmek için haritayı yakınlaştırın';
+          empty.textContent = 'تكبير الخريطة لرؤية النتائج';
         } else {
-          empty.textContent = 'Sonuçları görmek için haritayı kaydırın';
+          empty.textContent = 'قم بالتمرير على الخريطة لرؤية النتائج';
         }
         listingEl.appendChild(empty);
 
@@ -414,10 +414,10 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
               var description = `<h3>` + e.features[0].properties.Cat + `</h3><br />` +
                 `<h4>` + e.features[0].properties.Name + `</h4><br />` +
                 `<h4><a href="https://maps.google.com/maps/dir/?api=1&destination=${coordinates[1]},${coordinates[0]}" target="_blank">Yol tarifi</a></h4>` +
-                `<h4><b>İletişim: </b>` + e.features[0].properties.Contact + `</h4>` +
-                `<h4><b>Adres: </b>` + e.features[0].properties.Address + `</h4>` +
-                `<h4><b>Açıklama: </b>` + e.features[0].properties.Description + `</h4>` +
-                `<small><b>Kaynak: </b>` + e.features[0].properties.Source + `</small>`;
+                `<h4><b>تواصل: </b>` + e.features[0].properties.Contact + `</h4>` +
+                `<h4><b>العنوان: </b>` + e.features[0].properties.Address + `</h4>` +
+                `<h4><b>توضيح: </b>` + e.features[0].properties.Description + `</h4>` +
+                `<small><b>مصدر: </b>` + e.features[0].properties.Source + `</small>`;
 
               new mapboxgl.Popup()
                 .setLngLat(coordinates)
