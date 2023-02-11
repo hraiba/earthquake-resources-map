@@ -186,7 +186,9 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
     const filterEl = document.getElementById('feature-filter');
     const listingEl = document.getElementById('feature-listing');
     let csvDataSet = [];
-    
+    const popup = new mapboxgl.Popup({
+      closeButton: false
+    });
     mapboxgl.accessToken =
       'pk.eyJ1IjoibWFwYm94LWNvbW11bml0eSIsImEiOiJja2tkN21jcjAwMG51MnBxdHAxemdueGpzIn0.e0IzLkytGq4pcGGieP8KNA'; //Mapbox token
     var map = new mapboxgl.Map({
@@ -228,7 +230,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
           itemLink.textContent = label;
           itemLink.addEventListener('mouseover', () => {
             // Highlight corresponding feature on the map
-            new mapboxgl.Popup
+            popup
               .setLngLat(feature.geometry.coordinates)
               .setText(label)
               .addTo(map);
@@ -265,7 +267,7 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
       });
 
       function makeGeoJSON(csvData) {
-        csv2geojson.csv2geojson(csvData, {   
+        csv2geojson.csv2geojson(csvData, {
           latfield: 'Latitude',
           lonfield: 'Longitude',
           delimiter: ','
@@ -278,36 +280,36 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
 
             //Textfield
             map.addLayer({
-                'id': 'title',
-                'type': 'symbol',
-                'source': 'csvDataSet',
-                'minzoom': 12,
+              'id': 'title',
+              'type': 'symbol',
+              'source': 'csvDataSet',
+              'minzoom': 12,
 
-                'layout': {
+              'layout': {
 
-                    'text-field': [
-                        'format',
-                        ['concat', ['get', 'Cat']], {
-                            'font-scale': 1,
-                            'text-color': '#fff'
-                        },
-                        '\n', {},
-                        ['concat', ['get', 'cat']], {
-                            'font-scale': 0.7,
-                            'text-color': '#fff'
-                        }
-                    ],
-                    'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
-                    'text-radial-offset': 1,
-                    'text-justify': 'auto',
-                    'text-font': ['Open Sans Semibold']
-                },
-                'paint': {
-                    'text-color': '#fff',
-                    'text-halo-color': '#333',
-                    'text-halo-width': 1,
-                    'text-halo-blur': 1
-                },
+                'text-field': [
+                  'format',
+                  ['concat', ['get', 'Cat']], {
+                    'font-scale': 1,
+                    'text-color': '#fff'
+                  },
+                  '\n', {},
+                  ['concat', ['get', 'cat']], {
+                    'font-scale': 0.7,
+                    'text-color': '#fff'
+                  }
+                ],
+                'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+                'text-radial-offset': 1,
+                'text-justify': 'auto',
+                'text-font': ['Open Sans Semibold']
+              },
+              'paint': {
+                'text-color': '#fff',
+                'text-halo-color': '#333',
+                'text-halo-width': 1,
+                'text-halo-blur': 1
+              },
             });
 
             //Add the the layer to the map
@@ -317,26 +319,26 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
               'source': 'csvDataSet',
               'paint': {
                 'circle-color': [
-                    'match',
-                    ['get', 'Cat'],
+                  'match',
+                  ['get', 'Cat'],
 
-                    'Güvenli Alan', '#3498db',
-                    'Veteriner', '#8e44ad ',
-                    'Otobüs', '#283747',
-                    'Konaklama & Beslenme', '#e67e22',
-                    /* other */
-                    ' #fee090'
+                  'Güvenli Alan', '#3498db',
+                  'Veteriner', '#8e44ad ',
+                  'Otobüs', '#283747',
+                  'Konaklama & Beslenme', '#e67e22',
+                  /* other */
+                  ' #fee090'
                 ],
                 'circle-radius': [
-                    'match',
-                    ['get', 'cat'],
+                  'match',
+                  ['get', 'cat'],
 
-                    'Güvenli Alan', 8,
-                    'Veteriner', 8,
-                    'Otobüs', 8,
-                    'Konaklama & Beslenme', 8,
-                    /* other */
-                    8
+                  'Güvenli Alan', 8,
+                  'Veteriner', 8,
+                  'Otobüs', 8,
+                  'Konaklama & Beslenme', 8,
+                  /* other */
+                  8
                 ],
                 'circle-stroke-color': 'black',
                 'circle-stroke-width': 0.5,
@@ -467,17 +469,17 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
 
               // Populate the popup and set its coordinates based on the feature.
               const feature = e.features[0];
-              // popup
-              //   .setLngLat(feature.geometry.coordinates)
-              //   .setText(
-              //     `${feature.properties.name} (${feature.properties.abbrev})`
-              //   )
-              //   .addTo(map);
+              popup
+                .setLngLat(feature.geometry.coordinates)
+                .setText(
+                  `${feature.properties.Name}`
+                )
+                .addTo(map);
             });
 
             map.on('mouseleave', 'csvData', () => {
               map.getCanvas().style.cursor = '';
-              //popup.remove();
+              popup.remove();
             });
 
             filterEl.addEventListener('keyup', (e) => {
@@ -508,8 +510,8 @@ C22.32,8.481,24.301,9.057,26.013,10.047z">
                 ]);
               }
             });
-          
-            
+
+
             renderListings([]);
           });
 
