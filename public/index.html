@@ -410,6 +410,7 @@
                 `<span><b>Adres: </b>` + e.features[0].properties.Address + `</span><br>` +
                 `<span><b>Açıklama: </b>` + e.features[0].properties.Description + `</span><br>` +
                 `<p class="small pt-1 mt-2 border-top"><b>Kaynak: </b>` + e.features[0].properties.Source + `</p>` +
+                `<p class="small pt-1 mt-2 border-top"><b>Koordinat: </b><a class="link-dark text-decoration-none" href="https://www.google.com/maps/place/${coordinates[1]},${coordinates[0]}" target="_blank">${coordinates[1]}, ${coordinates[0]}</a></p>` +
                 `<div class="btn btn-primary btn-sm"><a class="link-light text-decoration-none" href="https://maps.google.com/maps/dir/?api=1&destination=${coordinates[1]},${coordinates[0]}" target="_blank">Yol tarifi</a></div>`
               ;
 
